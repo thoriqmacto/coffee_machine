@@ -1,13 +1,15 @@
 package machine
 
 fun main() {
-    val machine = CoffeeMachine()
-    machine.messageStatus.forEach { (_, v) ->
-        println(v)
-    }
+    val totalCups = readln().toInt()
+    val machine = CoffeeMachine(totalCups)
 }
 
-class CoffeeMachine {
+class CoffeeMachine(val totalCups:Int) {
+    private val waterPerCup = 200
+    private val milkPerCup = 50
+    private val beansPerCup = 15
+
     val messageStatus = mapOf(
         1 to "Starting to make a coffee",
         2 to "Grinding coffee beans",
@@ -17,4 +19,19 @@ class CoffeeMachine {
         6 to "Pouring some milk into the cup",
         7 to "Coffee is ready!"
         )
+
+    init {
+        calculateIngredients()
+    }
+
+    private fun calculateIngredients(){
+        val waterNeeded = totalCups * waterPerCup
+        val milkNeeded = totalCups * milkPerCup
+        val beansNeeded = totalCups * beansPerCup
+
+        println("For $totalCups cups of coffee you will need:")
+        println("$waterNeeded ml of water")
+        println("$milkNeeded ml of milk")
+        println("$beansNeeded g of coffee beans")
+    }
 }
