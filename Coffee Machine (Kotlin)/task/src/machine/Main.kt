@@ -7,14 +7,44 @@ fun main() {
 }
 
 class CoffeeMachine {
-    private val waterPerCup = 200.0
-    private val milkPerCup = 50.0
-    private val beansPerCup = 15.0
-    private var waterAvailable = 0.0
-    private var milkAvailable = 0.0
-    private var beansAvailable = 0.0
-    private var numCoffeeAsRequested = 0
-    private var numCoffeeAsPerResource = 0
+    private var amountOfWater:Int = 400
+    private var amountOfMilk:Int = 540
+    private var amountOfBeans:Int = 120
+    private var amountOfCups:Int = 9
+    private var amountOfMoney:Int = 550
+
+    private var actionState:String = ""
+    private var buyChoice = 0
+    private var fillWater= 0
+    private var fillMilk = 0
+    private var fillBeans = 0
+    private var fillCups = 0
+
+    private val ingredientsEspresso = mapOf(
+        "water" to 250,
+        "milk" to 0,
+        "beans" to 16,
+        "price" to 4
+    )
+    private val ingredientsLatte = mapOf(
+        "water" to 350,
+        "milk" to 75,
+        "beans" to 20,
+        "price" to 7
+    )
+
+    private val ingredientsCappucino = mapOf(
+        "water" to 200,
+        "milk" to 100,
+        "beans" to 12,
+        "price" to 6
+    )
+
+//    private var waterAvailable = 0.0
+//    private var milkAvailable = 0.0
+//    private var beansAvailable = 0.0
+//    private var numCoffeeAsRequested = 0
+//    private var numCoffeeAsPerResource = 0
 
 //    val messageStatus = mapOf(
 //        1 to "Starting to make a coffee",
@@ -27,46 +57,120 @@ class CoffeeMachine {
 //        )
 
     init {
-        calculateResource()
-
-        println("Write how many cups of coffee you will need:")
-        numCoffeeAsRequested = readln().toInt()
-
-        calculateCoffeeCapacity()
+        printMachineState()
     }
 
-    private fun calculateResource() {
-        println("Write how many ml of water the coffee machine has:")
-        waterAvailable = readln().toDouble()
-        println("Write how many ml of milk the coffee machine has:")
-        milkAvailable = readln().toDouble()
-        println("Write how many grams of coffee beans the coffee machine has:")
-        beansAvailable = readln().toDouble()
-
-        val totalCoffeeBasedOnWater = (waterAvailable / waterPerCup).toInt()
-        val totalCoffeeBasedOnMilk = (milkAvailable / milkPerCup).toInt()
-        val totalCoffeeBasedOnBeans = (beansAvailable / beansPerCup).toInt()
-
-        numCoffeeAsPerResource = minOf(totalCoffeeBasedOnWater,
-            totalCoffeeBasedOnMilk,
-            totalCoffeeBasedOnBeans)
+    private fun printMachineState() {
+        println("The coffee machine has:")
+        println("$amountOfWater ml of water")
+        println("$amountOfMilk ml of milk")
+        println("$amountOfBeans g of coffee beans")
+        println("$amountOfCups disposable cups")
+        println("\$$amountOfMoney of money")
+        println()
     }
 
-    private fun calculateCoffeeCapacity(){
-        println("Num. Coffee Requested: $numCoffeeAsRequested")
-        println("Num. Coffee Resources: $numCoffeeAsPerResource")
+    private fun promptUser(){
+        println("Write action (buy, fill, take):")
+        val userChoice = readln()
 
-        if(numCoffeeAsRequested > numCoffeeAsPerResource){
-            println("No, I can make only $numCoffeeAsPerResource cups of coffee")
-        }else if(numCoffeeAsRequested == numCoffeeAsPerResource) {
-            println("Yes, I can make that amount of coffee")
-        }else{
-            val surplus = numCoffeeAsPerResource - numCoffeeAsRequested
-            println("Yes I can make that amount of coffee (and even $surplus more than that)")
+        when(userChoice) {
+            "buy" -> {
+                actionState = "buy"
+                println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino:")
+                buyChoice = readln().toInt()
+            }
+            "fill" -> {
+                actionState = "fill"
+                println("Write how many ml of water you want to add:")
+                fillWater = readln().toInt()
+                println("Write how many ml of milk you want to add:")
+                fillMilk = readln().toInt()
+                println("Write how many grams of coffee beans you want to add:")
+                fillBeans = readln().toInt()
+                println("Write how many disposable cups you want to add:")
+                fillCups = readln().toInt()
+            }
+            "take" -> {
+                actionState = "take"
+            }
         }
     }
 
+    private fun updateResource(resourceType:String) {
+        when(resourceType){
+            "buy" -> {
+                when(buyChoice){
+                    1 -> {
+                        ingredientsEspresso.forEach { (k,v) ->
+                            when(k){
+                                "water" -> amountOfWater = amountOfWater.minus(v)
+                                "beans" -> amountOfBeans = amountOfBeans.minus(v)
+                                "price" -> amountOfMoney += v
+                            }
+                        }
+                    }
+                    2 -> {
+                        ingredientsLatte.forEach { (k,v) ->
+                            when(k){
+                                "water" -> amountOfWater = amountOfWater.minus(v)
+                                "beans" -> amountOfBeans = amountOfBeans.minus(v)
+                                "price" -> amountOfMoney += v
+                                "milk" -> amountOfMilk = amountOfMilk.minus(v)
+                            }
+                        }
+                    }
+                    3 -> {
+                        ingredientsCappucino.forEach { (k,v) ->
+                            when(k){
+                                "water" -> amountOfWater = amountOfWater.minus(v)
+                                "beans" -> amountOfBeans = amountOfBeans.minus(v)
+                                "price" -> amountOfMoney += v
+                                "milk" -> amountOfMilk = amountOfMilk.minus(v)
+                            }
+                        }
+                    }
+                }
+                amountOfCups--
+            }
+            "fill" -> {
+                amountOfWater += fillWater
+                amountOfMilk += fillMilk
+                amountOfBeans += fillBeans
+                amountOfCups += fillCups
+            }
+            "take" -> {
+                println("I gave you \$$amountOfMoney")
+                amountOfMoney = 0
+            }
+        }
+
+//        val totalCoffeeBasedOnWater = (waterAvailable / waterPerCup).toInt()
+//        val totalCoffeeBasedOnMilk = (milkAvailable / milkPerCup).toInt()
+//        val totalCoffeeBasedOnBeans = (beansAvailable / beansPerCup).toInt()
+//
+//        numCoffeeAsPerResource = minOf(totalCoffeeBasedOnWater,
+//            totalCoffeeBasedOnMilk,
+//            totalCoffeeBasedOnBeans)
+    }
+
+//    private fun calculateCoffeeCapacity(){
+//        println("Num. Coffee Requested: $numCoffeeAsRequested")
+//        println("Num. Coffee Resources: $numCoffeeAsPerResource")
+//
+//        if(numCoffeeAsRequested > numCoffeeAsPerResource){
+//            println("No, I can make only $numCoffeeAsPerResource cups of coffee")
+//        }else if(numCoffeeAsRequested == numCoffeeAsPerResource) {
+//            println("Yes, I can make that amount of coffee")
+//        }else{
+//            val surplus = numCoffeeAsPerResource - numCoffeeAsRequested
+//            println("Yes I can make that amount of coffee (and even $surplus more than that)")
+//        }
+//    }
+
     fun run(){
-        return
+        promptUser()
+        updateResource(actionState)
+        printMachineState()
     }
 }
